@@ -1,0 +1,39 @@
+# client node modules
+/client/node_modules
+
+# server node modules
+/server/node_modules
+
+# environment variables
+.env
+.env*
+
+# client build and Next.js output
+/client/.next/
+/client/out/
+/client/build/
+
+# server build output
+/server/dist
+/server/build
+
+# logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+
+# Prisma generated files
+/server/generated/prisma
+
+# others
+.pnp
+.pnp.js
+.yarn/install-state.gz
+
+# vercel
+/client/.vercel
