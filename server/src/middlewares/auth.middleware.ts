@@ -1,12 +1,15 @@
+import { Request, Response, NextFunction } from "express";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import { PrismaClient, User } from "@prisma/client";
 import { ApiError } from "../utils/ApiError";
 import { asyncHandler } from "../utils/asyncHandler";
-import jwt, { JwtPayload } from "jsonwebtoken";
-import { Users, UserDocument } from "../models/users.model";
-import { Request, Response, NextFunction } from "express";
 
-// Extend Request interface to add user property
+// Initialize Prisma client
+const prisma = new PrismaClient();
+
+// Extend Request to include user
 interface AuthenticatedRequest extends Request {
-    user?: UserDocument;
+    user?: Omit<User, "password" | "refreshToken">;
 }
 
 const verifyjwt = asyncHandler(
@@ -23,15 +26,23 @@ const verifyjwt = asyncHandler(
             const decodedToken = jwt.verify(
                 token,
                 process.env.ACCESS_TOKEN_SECRET || ""
-            ) as JwtPayload & { _id?: string };
+            ) as JwtPayload & { id?: string };
 
-            if (!decodedToken._id) {
+            if (!decodedToken.id) {
                 throw new ApiError(401, "Invalid token payload");
             }
 
-            const user = await Users.findById(decodedToken._id).select(
-                "-password -refreshToken"
-            );
+            const user = await prisma.user.findUnique({
+                where: { id: decodedToken.id },
+                select: {
+                    id: true,
+                    email: true,
+                    username: true,
+                    profilePicture: true,
+                    createdAt: true,
+                    updatedAt: true,
+                },
+            });
 
             if (!user) {
                 throw new ApiError(401, "Invalid Access Token");

@@ -1,30 +1,28 @@
 import { Router } from "express";
 import {
-    loginUser,
-    logoutUser,
-    registerUser,
-    AccessRefreshToken,
-    updatePassword,
-} from "../controllers/user.controllers";
-import { upload } from "../middlewares/multer.middleware";
+    createTodo,
+    getAllTodosForUser,
+    getTodosExcludingUser,
+    updateTodo,
+    deleteTodo,
+} from "../controllers/tasks.controllers";
 import { verifyjwt } from "../middlewares/auth.middleware";
 
 const router = Router();
 
-router.route("/register").post(
-    upload.fields([
-        { name: "avatar", maxCount: 1 },
-        { name: "coverImage", maxCount: 1 },
-    ]),
-    registerUser
-);
+// ✅ Create a new Todo
+router.post("/:userId", verifyjwt, createTodo);
 
-router.route("/login").post(loginUser);
+// ✅ Get all Todos for a specific user
+router.get("/:userId", verifyjwt, getAllTodosForUser);
 
-router.route("/logout").post(verifyjwt, logoutUser);
+// ✅ Get Todos not belonging to a specific user
+router.get("/others/:userId", verifyjwt, getTodosExcludingUser);
 
-router.route("/refresh-token").post(AccessRefreshToken);
+// ✅ Update a specific Todo
+router.put("/:id", verifyjwt, updateTodo);
 
-router.route("/login/update-password").post(verifyjwt, updatePassword);
+// ✅ Delete a specific Todo
+router.delete("/:id", verifyjwt, deleteTodo);
 
 export default router;
